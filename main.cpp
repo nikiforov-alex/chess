@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
+#include <String.h>
 
 using namespace sf;
 using namespace std;
@@ -59,61 +60,74 @@ bool proverka_queen(int y1, int x1, int y2, int x2)
 }
 
 
-void Draw_Field(void)
+char Menu()
 {
-	
+	RenderWindow window(VideoMode(650, 650), "Menu", Style::Close);
+	Sprite menu = add_figure("images/menu.png");
+	Sprite new_game = add_figure("images/new_game.png");
+	Sprite exit = add_figure("images/exit.png");
+	Sprite name = add_figure("images/chess.png");
+	bool isGame = 0;
+	char menuNum = 0;
+	new_game.setPosition(110, 190);
+	exit.setPosition(110, 250);
+	name.setPosition(200, 50);
+	Event event;
+	while (isGame == 0)
+	{
+		new_game.setColor(Color::White);
+		exit.setColor(Color::White);
+		menuNum = 0;
+		window.clear();
+		if (IntRect(110, 190, 197, 40).contains(Mouse::getPosition(window)))
+		{
+			new_game.setColor(Color::Red);
+			menuNum = '1';
+		}
+		if (IntRect(110, 250, 109, 40).contains(Mouse::getPosition(window)))
+		{
+			exit.setColor(Color::Red);
+			menuNum = '2';
+		}
+		if (Mouse::isButtonPressed(Mouse::Left))
+		{
+			if (menuNum == '1')
+			{
+				isGame = true;
+				window.close();
+			}
+			if (menuNum == '2')
+			{
+				return NULL;
+				window.close();
+				
+			}
+		}
+		while (window.pollEvent(event))
+			if (event.type == Event::Closed)
+			{
+				return NULL;
+				window.close();
+				
+			}
+		window.draw(menu);
+		window.draw(name);
+		window.draw(new_game);
+		window.draw(exit);
+		window.display();
+		
+	}
+	return menuNum;
 }
 
-#define ESC 27
+#define ESC 27;
 
-int main()
+char chess()
 {
+	
 	RectangleShape WhiteSquare(Vector2f(koef, koef));
 	RectangleShape BlackSquare(Vector2f(koef, koef));
-	RenderWindow menu1(VideoMode(650, 650), "menu");
-	Sprite menu = add_figure("images/menu.png");
-	Sprite newgame = add_figure("images/newgame.png");
-	Sprite exitgame = add_figure("images/exit.png");
-	int ch = 0;
-	while (menu1.isOpen())
-	{
-		Event event2;
-		while (menu1.pollEvent(event2))
-		{
-			if (event2.type == Event::Closed)
-				menu1.close();
-		}
-		menu1.clear();
-		menu1.draw(menu);
-		newgame.setPosition(40, 25);
-		menu1.draw(newgame);
-		exitgame.setPosition(40, 100);
-		menu1.draw(exitgame);
-
-			Vector2i mousePos1 = Mouse::getPosition(menu1);
-			Event event;
-			int x1game = mousePos1.x;
-			int y1game = mousePos1.y;
-			while (menu1.pollEvent(event))
-				if (event.type == Event::MouseButtonPressed)
-				{
-					if (event.key.code == Mouse::Left)
-					{
-						if (x1game > 40 && x1game < 240 && y1game >25 && y1game < 80)
-						{
-							menu1.close();
-							ch++;
-						}
-						if (x1game > 40 && x1game < 160 && y1game >100 && y1game < 150)
-						{
-							exit;
-							menu1.close();
-						}
-					}
-				}
-		menu1.display();
-	}
-
+	int ch = 1;
 	RenderWindow window(VideoMode(650, 650), "chess");
 	WhiteSquare.setFillColor(sf::Color(222, 222, 222));
 	BlackSquare.setFillColor(sf::Color(41, 41, 41));
@@ -137,11 +151,7 @@ int main()
 	Sprite swhitequeen = add_figure("images/whiteking.png");
 	Sprite swhiteslon = add_figure("images/whiteslon.png");
 	Sprite sNill = add_figure("images/Null.png");
-	Sprite BlackWin = add_figure("images/winblack.png");
-	Sprite WhiteWin = add_figure("images/winwhite.png");
 	Sprite fon = add_figure("images/fon.png");
-	BlackWin.setPosition(0, 0);
-	WhiteWin.setPosition(0, 0);
 	fon.setPosition(0, 0);
 
 
@@ -173,8 +183,8 @@ int main()
 	pair<Sprite, pair<String, String>> whitequeen(swhitequeen, pWhitequeen);
 	pair<Sprite, pair<String, String>> whiteslon(swhiteslon, pWhiteslon);
 	pair<Sprite, pair<String, String>> Nill(sNill, pNill);
-	
-	newgame:
+
+newgame:
 	pair<Sprite, pair<String, String>> arrays[8][8]
 	{
 		{ whiteslon, whitehorse, whiteoficer, whiteking, whitequeen, whiteoficer, whitehorse, whiteslon },
@@ -187,15 +197,17 @@ int main()
 		{ blackslon, blackhorse, blackoficer, blackking, blackqueen, blackoficer, blackhorse, blackslon },
 	};
 
-	if (ch > 0 )
+	if (ch > 0)
 		Continue:
 	while (window.isOpen())
 	{
+		if (Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+
+			return '2';
+		}
 		Vector2i mousePos1 = Mouse::getPosition(window);
 		window.setFramerateLimit(24);
-
-		
-
 		window.clear();
 		window.draw(fon);
 		for (int i = 0; i < 8; i++)
@@ -245,10 +257,10 @@ int main()
 					x2q = (x2 - 25) / 75;
 					y2q = (y2 - 25) / 75;
 				}
-				if (((arrays[y1q][x1q].second.first != Nill.second.first) && (arrays[y1q][x1q].second.second == "White") && ((numbersClick % 4 == 1)||(numbersClick % 4 ==2))) || ((arrays[y1q][x1q].second.first != Nill.second.first) && (arrays[y1q][x1q].second.second == "Black") && ((numbersClick % 4 == 3)||(numbersClick % 4 ==0))))
+				if (((arrays[y1q][x1q].second.first != Nill.second.first) && (arrays[y1q][x1q].second.second == "White") && ((numbersClick % 4 == 1) || (numbersClick % 4 == 2))) || ((arrays[y1q][x1q].second.first != Nill.second.first) && (arrays[y1q][x1q].second.second == "Black") && ((numbersClick % 4 == 3) || (numbersClick % 4 == 0))))
 				{
 					arrays[y1q][x1q].first.setColor(Color::Yellow);
-					
+
 					if (event.key.code == Mouse::Left)
 					{
 						if (numbersClick % 2 == 0)
@@ -266,7 +278,7 @@ int main()
 							{
 								posBKX = 0;
 								posBKY = 0;
-								posWKX = 0; 
+								posWKX = 0;
 								posWKY = 0;
 								for (int i = 0; i < 8; i++)
 								{
@@ -277,7 +289,7 @@ int main()
 											posWKY = i;
 											posWKX = j;
 										}
-										if (arrays[i][j].second.first == "blackking")	
+										if (arrays[i][j].second.first == "blackking")
 										{
 											posBKY = i;
 											posBKX = j;
@@ -290,8 +302,8 @@ int main()
 								{
 									prov = true;
 								}
-								if ((proverka_horse(y1q, x1q, y2q, x2q) == true) && ((arrays[y1q][x1q].second.first == "whitehorse")||(arrays[y1q][x1q].second.first == "blackhorse")))
-								{			
+								if ((proverka_horse(y1q, x1q, y2q, x2q) == true) && ((arrays[y1q][x1q].second.first == "whitehorse") || (arrays[y1q][x1q].second.first == "blackhorse")))
+								{
 									prov = true;
 								}
 								if ((proverka_slon(y1q, x1q, y2q, x2q) == true) && ((arrays[y1q][x1q].second.first == "Whiteslon") || (arrays[y1q][x1q].second.first == "blackslon")))
@@ -363,17 +375,17 @@ int main()
 								}
 								if (arrays[y1q][x1q].second.first == "blackpeshka")
 								{
-									if ((1+y2q == y1q) && (x2q == x1q) && (arrays[y2q][x2q].second.first == "Nilll"))
+									if ((1 + y2q == y1q) && (x2q == x1q) && (arrays[y2q][x2q].second.first == "Nilll"))
 									{
 										prov = true;
 									}
-									if ((1+y2q == y1q) && (((x2q + 1) == x1q) || ((x2q - 1) == x1q)) && (arrays[y2q][x2q].second.second == "White"))
+									if ((1 + y2q == y1q) && (((x2q + 1) == x1q) || ((x2q - 1) == x1q)) && (arrays[y2q][x2q].second.second == "White"))
 									{
 										prov = true;
 									}
 									if (y1q == 6)
 									{
-										if ((y2q + 2 == y1q) && (x2q == x1q) && (arrays[y2q][x2q].second.first == "Nilll") && (arrays[y2q+1][x2q].second.first == "Nilll"))
+										if ((y2q + 2 == y1q) && (x2q == x1q) && (arrays[y2q][x2q].second.first == "Nilll") && (arrays[y2q + 1][x2q].second.first == "Nilll"))
 										{
 											prov = true;
 										}
@@ -392,7 +404,7 @@ int main()
 								{
 									chwhite = 1;
 								}
-								
+
 								if (prov == true)
 								{
 									pair<Sprite, pair<String, String>> loll = arrays[y1q][x1q];
@@ -429,30 +441,103 @@ int main()
 					numbersClick++;
 				}
 			}
-		
-			if (event.type == Event::Closed)
-				window.close();
+
+		if (event.type == Event::Closed)
+			window.close();
 		window.display();
 	}
 	if ((chblack == 1) || (chwhite == 1))
 	{
-		RenderWindow window1(VideoMode(650, 650), "Win");
-		while (window1.isOpen())
-		{
-			Event event1;
-			while (window1.pollEvent(event1))
-			{
-				if (event1.type == Event::Closed)
-					window1.close();
-			}
-
-			window1.clear();
 			if (chwhite == 1)
-				window1.draw(BlackWin);
+			{
+				return 'B';
+			}
 			if (chblack == 1)
-				window1.draw(WhiteWin);
-			window1.display();
+			{
+				return 'W';
+			}
+	}
+	
+}
+
+void Win(char s)
+{
+	Sprite BlackWin = add_figure("images/winblack.png");
+	Sprite WhiteWin = add_figure("images/winwhite.png");
+	BlackWin.setPosition(0, 0);
+	WhiteWin.setPosition(0, 0);
+	RenderWindow window2(VideoMode(650, 650), "Win");
+	while (window2.isOpen())
+	{
+		if (Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+			return;
+		}
+		Event event1;
+		while (window2.pollEvent(event1))
+		{
+			if (event1.type == Event::Closed)
+				window2.close();
+		}
+
+		window2.clear();
+		if (s == 'B')
+		{
+			window2.draw(BlackWin);
+		}
+		if (s == 'W')
+		{
+			window2.draw(WhiteWin);
+		}
+		window2.display();
+	}
+}
+
+	int main()
+{
+	char s = NULL;
+	char game = Menu();
+	if (game == '1')
+		s = '1';
+	while (s != NULL)
+	{
+		if (s == '1')
+		{
+			s = chess();
+		}
+		if (s == '2')
+		{
+			s = Menu();
+		}
+		if ((s == 'B') || (s == 'W'))
+		{
+			Win(s);	
+			s = Menu();
 		}
 	}
+
+	/*while (true)
+	{
+		switch (s)
+		{
+			case '1':
+			{
+				s = chess();
+			}
+			case '2':
+			{
+				s = Menu();
+			}
+			case '0':
+			{
+				return false;
+			}
+		}
+	}*/
+	
+		
+		//if (game == 0)
+			
+	
 	return 0;
 }
