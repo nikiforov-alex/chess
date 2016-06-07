@@ -5,7 +5,9 @@
 using namespace sf;
 using namespace std;
 const int koef = 75;
-
+bool contin = true; 
+pair<Sprite, pair<String, String>> arrays[8][8];
+int numbersClick = 0, PnumbersClick = 0, chblack = 0, chwhite = 0;
 
 Sprite add_figure(string str)
 {
@@ -67,8 +69,10 @@ char Menu()
 	Sprite new_game = add_figure("images/new_game.png");
 	Sprite exit = add_figure("images/exit.png");
 	Sprite name = add_figure("images/chess.png");
+	Sprite cont = add_figure("images/continue.png");
 	bool isGame = 0;
 	char menuNum = 0;
+	cont.setPosition(110,136);
 	new_game.setPosition(110, 190);
 	exit.setPosition(110, 250);
 	name.setPosition(200, 50);
@@ -77,20 +81,34 @@ char Menu()
 	{
 		new_game.setColor(Color::White);
 		exit.setColor(Color::White);
+		cont.setColor(Color::White);
 		menuNum = 0;
 		window.clear();
+		if (IntRect(110, 136, 148, 28).contains(Mouse::getPosition(window)))
+		{
+			cont.setColor(Color::Red);
+			menuNum = '3';
+			contin = true;
+		}
 		if (IntRect(110, 190, 197, 40).contains(Mouse::getPosition(window)))
 		{
 			new_game.setColor(Color::Red);
 			menuNum = '1';
+			contin = false;
 		}
 		if (IntRect(110, 250, 109, 40).contains(Mouse::getPosition(window)))
 		{
 			exit.setColor(Color::Red);
 			menuNum = '2';
 		}
+
 		if (Mouse::isButtonPressed(Mouse::Left))
 		{
+			if (menuNum == '3' && numbersClick>0)
+			{
+				isGame = true;
+				window.close();
+			}
 			if (menuNum == '1')
 			{
 				isGame = true;
@@ -114,13 +132,13 @@ char Menu()
 		window.draw(name);
 		window.draw(new_game);
 		window.draw(exit);
+		if (numbersClick>0)
+		window.draw(cont);
 		window.display();
-		
+		window.clear();
 	}
 	return menuNum;
 }
-
-#define ESC 27;
 
 char chess()
 {
@@ -132,8 +150,8 @@ char chess()
 	WhiteSquare.setFillColor(sf::Color(222, 222, 222));
 	BlackSquare.setFillColor(sf::Color(41, 41, 41));
 
-	int numbersClick = 1, schyot, xk, yk;
-	int x1 = 0, x2 = 0, y1 = 0, y2 = 0, chblack = 0, chwhite = 0;
+	int schyot, xk, yk;
+	int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 	int x1q = 0, x2q = 0, y1q = 0, y2q = 0;
 	bool prov;
 	int posBKX, posWKX, posBKY, posWKY;
@@ -183,9 +201,7 @@ char chess()
 	pair<Sprite, pair<String, String>> whitequeen(swhitequeen, pWhitequeen);
 	pair<Sprite, pair<String, String>> whiteslon(swhiteslon, pWhiteslon);
 	pair<Sprite, pair<String, String>> Nill(sNill, pNill);
-
-newgame:
-	pair<Sprite, pair<String, String>> arrays[8][8]
+	pair<Sprite, pair<String, String>> doparr[8][8]
 	{
 		{ whiteslon, whitehorse, whiteoficer, whiteking, whitequeen, whiteoficer, whitehorse, whiteslon },
 		{ whitepeshka, whitepeshka, whitepeshka, whitepeshka, whitepeshka, whitepeshka, whitepeshka, whitepeshka },
@@ -196,14 +212,24 @@ newgame:
 		{ blackpeshka, blackpeshka, blackpeshka, blackpeshka, blackpeshka, blackpeshka, blackpeshka, blackpeshka },
 		{ blackslon, blackhorse, blackoficer, blackking, blackqueen, blackoficer, blackhorse, blackslon },
 	};
+	if (contin == false)
+	{
+		chblack = 0, chwhite = 0;
+		numbersClick = 1;
+		PnumbersClick = 1;
+		for (int i = 0; i < 8; i++)
+			for (int j = 0; j < 8; j++)
+				arrays[i][j] = doparr[i][j];
+	}
+	Clock clock;
+	Time timeP, timeN, timeB, timeW;
+	timeB = timeW = timeP = timeN = clock.getElapsedTime();
 
-	if (ch > 0)
-		Continue:
 	while (window.isOpen())
 	{
+		
 		if (Keyboard::isKeyPressed(Keyboard::Escape))
 		{
-
 			return '2';
 		}
 		Vector2i mousePos1 = Mouse::getPosition(window);
@@ -437,15 +463,42 @@ newgame:
 							window.close();
 						}
 					}
-					printf("%d %d %d %d %d\n", mousePos1.x, mousePos1.y, numbersClick, chblack, chwhite);
+					printf("%d %d %d %d %d %d\n", mousePos1.x, mousePos1.y, numbersClick, timeP.asMilliseconds(), timeN.asMilliseconds(), (timeN-timeP).asMilliseconds());
 					numbersClick++;
+					
+				}
+				if (numbersClick == PnumbersClick+2)
+				{
+					PnumbersClick = numbersClick;
+					timeP = timeN;
+					timeN = clock.getElapsedTime();
+					if (numbersClick % 4 == 3 || numbersClick % 4 == 0)
+					{
+						printf("White moved\n");
+						timeW = timeW + timeN - timeP;
+					}
+					if (numbersClick % 4 == 1 || numbersClick % 4 == 2)
+					{
+						printf("Black moved\n");
+						timeB = timeB + timeN - timeP;
+					}
 				}
 			}
 
+			/*
+			*/
+
+
 		if (event.type == Event::Closed)
+		{
+			printf("white time == %d\n", timeW.asMilliseconds());
+			printf("black time == %d\n", timeB.asMilliseconds());
+
 			window.close();
+		}
 		window.display();
 	}
+
 	if ((chblack == 1) || (chwhite == 1))
 	{
 			if (chwhite == 1)
@@ -501,7 +554,7 @@ void Win(char s)
 		s = '1';
 	while (s != NULL)
 	{
-		if (s == '1')
+		if (s == '1' || s == '3')
 		{
 			s = chess();
 		}
@@ -515,29 +568,5 @@ void Win(char s)
 			s = Menu();
 		}
 	}
-
-	/*while (true)
-	{
-		switch (s)
-		{
-			case '1':
-			{
-				s = chess();
-			}
-			case '2':
-			{
-				s = Menu();
-			}
-			case '0':
-			{
-				return false;
-			}
-		}
-	}*/
-	
-		
-		//if (game == 0)
-			
-	
 	return 0;
 }
